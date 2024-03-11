@@ -32,10 +32,9 @@ class FileStorage:
                 objs = json.load(f)
             for obj_id, obj_dict in objs.items():
                 cls_name = obj_dict['__class__']
-                if cls_name == 'BaseModel':
-                    obj = BaseModel(**obj_dict)
-                # If more classes are added, include additional conditional checks here
-                FileStorage.__objects[obj_id] = obj
+                # Dynamically instantiate objects based on their class name
+                if cls_name in globals():
+                    cls = globals()[cls_name]
+                    self.__objects[obj_id] = cls(**obj_dict)
         except FileNotFoundError:
             pass
-
