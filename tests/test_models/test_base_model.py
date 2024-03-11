@@ -51,6 +51,36 @@ class TestBaseModel(unittest.TestCase):
         self.assertTrue('updated_at' in model_dict)
         self.assertEqual(model_dict['created_at'], my_model.created_at.isoformat())
         self.assertEqual(model_dict['updated_at'], my_model.updated_at.isoformat())
+        
+    def test_create_instance_with_kwargs(self):
+        """Test instantiation of BaseModel instances with kwargs."""
+        time_now = datetime.now().isoformat()
+        kwargs = {
+            'id': '123',
+            'created_at': time_now,
+            'updated_at': time_now,
+            'name': 'Kwarg Model'
+        }
+        my_model = BaseModel(**kwargs)
+        self.assertEqual(my_model.id, '123')
+        self.assertEqual(my_model.name, 'Kwarg Model')
+        # Ensure that created_at and updated_at are converted from string to datetime objects
+        self.assertIsInstance(my_model.created_at, datetime)
+        self.assertIsInstance(my_model.updated_at, datetime)
+        # Ensure the datetime objects match the time_now within the allowed margin of error
+        self.assertAlmostEqual(my_model.created_at, datetime.fromisoformat(time_now), delta=datetime.timedelta(seconds=1))
+        self.assertAlmostEqual(my_model.updated_at, datetime.fromisoformat(time_now), delta=datetime.timedelta(seconds=1))
+
+    def test_kwargs_none_for_class_attribute(self):
+        """Test __class__ key in kwargs does not set an attribute."""
+        kwargs = {
+            '__class__': 'BaseModel',
+            'id': '321',
+            'name': 'No class attribute'
+        }
+        my_model = BaseModel(**kwargs)
+        self.assertFalse(hasattr(my_model, '__class__'), "my_model should not have '__class__' as an attribute")
+
 
 if __name__ == "__main__":
     unittest.main()
